@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA DE PAPELETAS DE PERMISO</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librerías para Word -->
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.min.js"></script>
+    <script src="https://unpkg.com/docxtemplater@3.37.2/build/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --military-navy: #1b2a4a;
+            --military-gold: #c5a059;
+            --military-red: #990000;
+        }
+        .bg-navy-custom { background-color: var(--military-navy); }
+        .text-gold-custom { color: var(--military-gold); }
+        .border-gold-custom { border-color: var(--military-gold); }
+        .btn-gold-custom { background-color: var(--military-gold); color: #111; }
+        .btn-gold-custom:hover { background-color: #b08d4c; }
+    </style>
+</head>
+<body class="bg-slate-900 font-sans text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- PANTALLA DE INICIO (BIENVENIDA INSTITUCIONAL CON LOGO SVG) -->
+    <div id="pantalla-inicio" class="fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-32 h-32 mb-4">
+            <svg width="128" height="128" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#b8860b"/>
+                  <stop offset="35%" stop-color="#ffd700"/>
+                  <stop offset="70%" stop-color="#fff066"/>
+                  <stop offset="100%" stop-color="#b8860b"/>
+                </linearGradient>
+                <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" stop-color="#d32f2f"/>
+                  <stop offset="50%" stop-color="#ff9800"/>
+                  <stop offset="100%" stop-color="#ffd700"/>
+                </linearGradient>
+              </defs>
+              <g>
+                <line x1="50" y1="35" x2="245" y2="275" stroke="url(#goldGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="50" y1="35" x2="245" y2="275" stroke="#4a3700" stroke-width="1.5"/>
+                <path d="M 50 35 L 42 22 C 40 10, 50 5, 52 2 C 54 5, 64 10, 62 22 L 54 35 Z" fill="url(#goldGrad)" stroke="#4a3700" stroke-width="1.5" transform="rotate(-40 50 35)"/>
+                <line x1="250" y1="35" x2="55" y2="275" stroke="url(#goldGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="250" y1="35" x2="55" y2="275" stroke="#4a3700" stroke-width="1.5"/>
+                <path d="M 250 35 L 242 22 C 240 10, 250 5, 252 2 C 254 5, 264 10, 262 22 L 254 35 Z" fill="url(#goldGrad)" stroke="#4a3700" stroke-width="1.5" transform="rotate(40 250 35)"/>
+                <polygon points="65,45 135,115 65,185 -5,115" transform="translate(6, 12) rotate(-5 65 115)" fill="#ffffff" stroke="#c29b10" stroke-width="2.5"/>
+                <polygon points="65,80 100,115 65,150 30,115" transform="translate(6, 12) rotate(-5 65 115)" fill="#e50914" stroke="#8b0000" stroke-width="1"/>
+                <polygon points="235,45 305,115 235,185 165,115" transform="translate(-6, 12) rotate(5 235 115)" fill="#e50914" stroke="#c29b10" stroke-width="2.5"/>
+                <polygon points="235,80 270,115 235,150 200,115" transform="translate(-6, 12) rotate(5 235 115)" fill="#ffffff" stroke="#8b0000" stroke-width="1"/>
+                <path d="M 143,90 L 157,90 L 155,285 L 145,285 Z" fill="url(#goldGrad)" stroke="#4a3700" stroke-width="2"/>
+                <ellipse cx="150" cy="285" rx="5" ry="3" fill="url(#goldGrad)" stroke="#4a3700" stroke-width="1.5"/>
+                <path d="M 132,80 L 168,80 L 163,95 L 137,95 Z" fill="url(#goldGrad)" stroke="#4a3700" stroke-width="2"/>
+                <rect x="135" y="70" width="30" height="12" rx="4" fill="url(#goldGrad)" stroke="#4a3700" stroke-width="2"/>
+                <path d="M 150,10 C 168,35 178,55 165,72 C 158,68 152,68 148,72 C 135,55 142,35 150,10 Z" fill="url(#flameGrad)" stroke="#8b0000" stroke-width="1"/>
+                <path d="M 150,10 C 160,25 175,40 172,60 C 168,52 163,50 160,56 C 164,38 155,25 150,10 Z" fill="#ff7700"/>
+                <path d="M 150,10 C 140,25 125,40 128,60 C 132,52 137,50 140,56 C 136,38 145,25 150,10 Z" fill="#ff7700"/>
+                <path d="M 150,28 C 158,45 162,58 156,70 C 152,67 148,67 144,70 C 138,58 142,45 150,28 Z" fill="#fff57a"/>
+              </g>
+            </svg>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-white uppercase tracking-wider mb-2">Sistema de Papeletas de Permiso</h1>
+        <p class="text-gold-custom font-semibold text-sm tracking-widest uppercase mb-8">Desarrollado por el BTN COM ABASTO MANTO N° 511</p>
+        <button onclick="iniciarSistema()" class="btn-gold-custom font-bold py-3 px-8 rounded-full shadow-lg uppercase tracking-wider text-sm transition-transform hover:scale-105">Dar inicio al registro</button>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="contenido-principal" class="hidden flex-col min-h-screen justify-between flex-grow">
+        <div class="bg-slate-950 border-b border-slate-800 py-2 px-6 flex justify-between items-center text-xs tracking-wider text-slate-400">
+            <span class="font-semibold text-gold-custom">BTN COM ABASTO MANTO N° 511</span>
+            <span>EJÉRCITO DEL PERÚ</span>
+        </div>
+
+        <div class="container mx-auto p-6 max-w-6xl flex-grow">
+            <header class="mb-8 text-center">
+                <div class="inline-block p-3 rounded-full bg-navy-custom border border-gold-custom shadow-lg mb-3">
+                    <svg class="w-10 h-10 text-gold-custom mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <h1 class="text-3xl font-bold tracking-wide text-white uppercase">SISTEMA DE PAPELETAS DE PERMISO</h1>
+                <p class="text-slate-400 text-sm mt-1">Módulo de control de personal y emisión automatizada de documentos</p>
+            </header>
+
+            <div class="flex justify-center mb-6 border-b border-slate-800">
+                <button onclick="cambiarVista('registro')" id="btn-registro" class="py-2 px-6 font-semibold border-b-2 border-gold-custom text-gold-custom transition-all">Formulario de Registro</button>
+                <button onclick="solicitarClaveAdmin()" id="btn-admin" class="py-2 px-6 font-semibold text-slate-400 hover:text-white transition-all">Panel de Administración</button>
+            </div>
+
+            <!-- FORMULARIO DE REGISTRO -->
+            <div id="vista-registro" class="bg-slate-950 border border-slate-800 p-8 rounded-xl shadow-xl max-w-xl mx-auto">
+                <h2 class="text-lg font-bold mb-4 text-gold-custom uppercase tracking-wider border-b border-slate-800 pb-2">Registro de Solicitud</h2>
+                
+                <div id="mensajeExito" class="hidden bg-emerald-900 border border-emerald-600 text-emerald-100 p-4 rounded-lg mb-4 text-center font-semibold text-sm">
+                    ¡Tu solicitud fue enviada, gracias!
+                </div>
+
+                <form id="formRegistro" onsubmit="guardarRegistro(event)" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-slate-300">Grado</label>
+                            <input type="text" id="grado" placeholder="Ej: TTE" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom uppercase">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-slate-300">Especialidad</label>
+                            <input type="text" id="especialidad" placeholder="Ej: COM" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom uppercase">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase font-semibold text-slate-300">Nro de DNI</label>
+                        <input type="text" id="dni" placeholder="Ej: 71638257" maxlength="8" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase font-semibold text-slate-300">Personal / Nombre</label>
+                        <select id="selectPersonal" onchange="verificarPersonalManual()" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                            <option value="">Seleccione o escriba personal...</option>
+                            <option value="NUEVO">➕ INGRESAR NUEVO NOMBRE MANUAL</option>
+                        </select>
+                    </div>
+                    
+                    <div id="contenedorNombreManual" class="hidden">
+                        <label class="block text-xs uppercase font-semibold text-slate-300">Escribir Nombre Completo</label>
+                        <input type="text" id="nombreManual" placeholder="Ej: CALLE SILVA Luis Franco" class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-slate-300">Cantidad de Días</label>
+                            <select id="dias" onchange="calcularFechaTermino()" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                                <option value="">Seleccione...</option>
+                                <script>
+                                    for(let i=1; i<=30; i++) document.write(`<option value="${i}">${i}</option>`);
+                                </script>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-slate-300">Ciudad</label>
+                            <input type="text" id="ciudad" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-slate-300">Fecha de Inicio</label>
+                            <input type="date" id="fechaInicio" onchange="calcularFechaTermino()" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-slate-300">Fecha de Término</label>
+                            <input type="date" id="fechaTermino" required readonly class="mt-1 block w-full rounded bg-slate-900 border border-slate-800 p-2 text-slate-400 shadow-sm cursor-not-allowed">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-semibold text-slate-300">Dirección</label>
+                        <input type="text" id="direccion" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-semibold text-slate-300">Teléfono</label>
+                        <input type="tel" id="telefono" required class="mt-1 block w-full rounded bg-slate-900 border border-slate-700 p-2 text-white shadow-sm focus:border-gold-custom">
+                    </div>
+                    <button type="submit" id="btnEnviar" class="w-full btn-gold-custom font-bold py-2.5 px-4 rounded transition-colors uppercase tracking-wider text-xs">Enviar Solicitud</button>
+                </form>
+            </div>
+
+            <!-- PANEL DE ADMINISTRACIÓN -->
+            <div id="vista-admin" class="hidden bg-slate-950 border border-slate-800 p-8 rounded-xl shadow-xl space-y-8">
+                <div>
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <h2 class="text-lg font-bold text-gold-custom uppercase tracking-wider">Registros Recibidos en la Nube</h2>
+                        <div class="flex items-center gap-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+                            <label class="text-xs uppercase font-semibold text-slate-300">Plantilla Word (.docx):</label>
+                            <input type="file" id="inputPlantilla" accept=".docx" class="text-xs text-slate-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-navy-custom file:text-gold-custom hover:file:bg-slate-800">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-800">
+                            <thead class="bg-slate-900">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Fecha Registro</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Personal (DNI / Nombre)</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Días / Ciudad</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Fechas Permiso</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaRegistros" class="divide-y divide-slate-800 bg-slate-950"></tbody>
+                        </table>
+                    </div>
+                    <div id="sinRegistros" class="text-center py-8 text-slate-500 hidden">No hay registros guardados todavía.</div>
+                </div>
+
+                <hr class="border-slate-800">
+
+                <!-- CONTROL DE VACACIONES -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-gold-custom uppercase tracking-wider">Control de Vacaciones (Hizo Uso Anterior)</h2>
+                            <p class="text-xs text-slate-400">Configura aquí los días que el personal ya gastó. Las futuras papeletas se descontarán automáticamente.</p>
+                        </div>
+                        <button onclick="guardarAcumulados()" class="btn-gold-custom px-4 py-2 rounded font-bold text-xs uppercase tracking-wider">Guardar Cambios de Vacaciones</button>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="min-w-full divide-y divide-slate-800">
+                            <thead class="bg-slate-900 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Personal</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Días Hábiles (DH)</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Sábados</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Domingos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaAcumulados" class="divide-y divide-slate-800 bg-slate-950"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="bg-slate-950 border-t border-slate-800 py-3 text-center text-xs text-slate-500 mt-8">
+            Sistema Automatizado de Papeletas &bull; BTN COM ABASTO MANTO N° 511
+        </footer>
+    </div>
+
+    <!-- Script de Lógica -->
+    <script>
+        const URL_API = "https://script.google.com/macros/s/AKfycbzdUFldPW7x1NqnZ7P1GpEOz0Eq3a3D8rTsLHBL7gsnFeZ2i62GPVtG2JWbBwq56w054g/exec";
+        const CLAVE_ADMIN = "511";
+        let registrosGlobales = [];
+
+        let listaPersonalGuardada = JSON.parse(localStorage.getItem('nombres_personal_sistema')) || [];
+        let acumuladosVacaciones = JSON.parse(localStorage.getItem('acumulados_vacaciones_sistema')) || {};
+
+        function iniciarSistema() {
+            document.getElementById('pantalla-inicio').classList.add('hidden');
+            const contenido = document.getElementById('contenido-principal');
+            contenido.classList.remove('hidden');
+            contenido.classList.add('flex');
+            actualizarSelectPersonal();
+        }
+
+        function actualizarSelectPersonal() {
+            const select = document.getElementById('selectPersonal');
+            select.innerHTML = `
+                <option value="">Seleccione o escriba personal...</option>
+                <option value="NUEVO">➕ INGRESAR NUEVO NOMBRE MANUAL</option>
+            `;
+            listaPersonalGuardada.forEach(nombre => {
+                const opt = document.createElement('option');
+                opt.value = nombre;
+                opt.textContent = nombre;
+                select.appendChild(opt);
+            });
+        }
+
+        function solicitarClaveAdmin() {
+            const password = prompt("Ingrese la clave de acceso para el Panel de Administración:");
+            if (password === CLAVE_ADMIN) {
+                cambiarVista('admin');
+                cargarRegistrosNube();
+                renderizarTablaAcumulados();
+            } else if (password !== null) {
+                alert("Clave incorrecta. Acceso denegado.");
+            }
+        }
+
+        function cambiarVista(vista) {
+            const vRegistro = document.getElementById('vista-registro');
+            const vAdmin = document.getElementById('vista-admin');
+            const bRegistro = document.getElementById('btn-registro');
+            const bAdmin = document.getElementById('btn-admin');
+
+            if (vista === 'registro') {
+                vRegistro.classList.remove('hidden');
+                vAdmin.classList.add('hidden');
+                bRegistro.className = "py-2 px-6 font-semibold border-b-2 border-gold-custom text-gold-custom transition-all";
+                bAdmin.className = "py-2 px-6 font-semibold text-slate-400 hover:text-white transition-all";
+            } else {
+                vRegistro.classList.add('hidden');
+                vAdmin.classList.remove('hidden');
+                bAdmin.className = "py-2 px-6 font-semibold border-b-2 border-gold-custom text-gold-custom transition-all";
+                bRegistro.className = "py-2 px-6 font-semibold text-slate-400 hover:text-white transition-all";
+            }
+        }
+
+        function verificarPersonalManual() {
+            const select = document.getElementById('selectPersonal');
+            const contenedor = document.getElementById('contenedorNombreManual');
+            const inputManual = document.getElementById('nombreManual');
+            if (select.value === 'NUEVO') {
+                contenedor.classList.remove('hidden');
+                inputManual.required = true;
+                inputManual.value = '';
+            } else {
+                contenedor.classList.add('hidden');
+                inputManual.required = false;
+                inputManual.value = '';
+            }
+        }
+
+        function calcularFechaTermino() {
+            const inicio = document.getElementById('fechaInicio').value;
+            const dias = parseInt(document.getElementById('dias').value);
+            if (inicio && dias) {
+                const date = new Date(inicio + 'T00:00:00');
+                date.setDate(date.getDate() + (dias - 1));
+                document.getElementById('fechaTermino').value = date.toISOString().split('T')[0];
+            }
+        }
+
+        async function guardarRegistro(event) {
+            event.preventDefault();
+            const btnEnviar = document.getElementById('btnEnviar');
+            const mensajeExito = document.getElementById('mensajeExito');
+            
+            btnEnviar.innerText = "ENVIANDO A LA NUBE...";
+            btnEnviar.disabled = true;
+
+            const grado = document.getElementById('grado').value.trim().toUpperCase();
+            const especialidad = document.getElementById('especialidad').value.trim().toUpperCase();
+            const dni = document.getElementById('dni').value.trim();
+            
+            let nombrePersonal = document.getElementById('selectPersonal').value;
+            if (nombrePersonal === 'NUEVO') {
+                nombrePersonal = document.getElementById('nombreManual').value.trim();
+                if (nombrePersonal && !listaPersonalGuardada.includes(nombrePersonal)) {
+                    listaPersonalGuardada.push(nombrePersonal);
+                    localStorage.setItem('nombres_personal_sistema', JSON.stringify(listaPersonalGuardada));
+                    actualizarSelectPersonal();
+                }
+            }
+
+            const nuevoRegistro = {
+                id: Date.now(),
+                fechaRegistro: obtenerFechaHoraActual(),
+                grado: grado,
+                especialidad: especialidad,
+                dni: dni,
+                nombre: nombrePersonal,
+                dias: document.getElementById('dias').value,
+                ciudad: document.getElementById('ciudad').value,
+                fechaInicio: document.getElementById('fechaInicio').value,
+                fechaTermino: document.getElementById('fechaTermino').value,
+                direccion: document.getElementById('direccion').value,
+                telefono: document.getElementById('telefono').value
+            };
+
+            try {
+                await fetch(URL_API, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoRegistro)
+                });
+
+                mensajeExito.classList.remove('hidden');
+                document.getElementById('formRegistro').reset();
+                document.getElementById('contenedorNombreManual').classList.add('hidden');
+                actualizarSelectPersonal();
+
+                setTimeout(() => {
+                    mensajeExito.classList.add('hidden');
+                }, 6000);
+
+            } catch (error) {
+                console.error(error);
+                alert('Error al conectar con la nube. Verifique su conexión.');
+            } finally {
+                btnEnviar.innerText = "ENVIAR SOLICITUD";
+                btnEnviar.disabled = false;
+            }
+        }
+
+        async function cargarRegistrosNube() {
+            const tbody = document.getElementById('tablaRegistros');
+            const sinRegistros = document.getElementById('sinRegistros');
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gold-custom">Sincronizando con la nube...</td></tr>`;
+
+            try {
+                const response = await fetch(URL_API);
+                registrosGlobales = await response.json();
+                renderizarTabla();
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Error al cargar datos de la nube.</td></tr>`;
+            }
+        }
+
+        function obtenerFechaHoraActual() {
+            const d = new Date();
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const anio = d.getFullYear();
+            const hora = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const seg = String(d.getSeconds()).padStart(2, '0');
+            return `${dia}/${mes}/${anio} ${hora}:${min}:${seg}`;
+        }
+
+        function limpiarFechaYMD(fechaStr) {
+            if (!fechaStr) return "";
+            let str = String(fechaStr);
+            if (str.includes('T')) {
+                str = str.split('T')[0];
+            }
+            if (str.length >= 10) {
+                str = str.substring(0, 10);
+            }
+            return str;
+        }
+
+        function formatearFechaRegistro(fechaRegStr) {
+            if (!fechaRegStr) return "";
+            let str = String(fechaRegStr);
+            if (str.includes('/')) return str;
+            try {
+                let dateObj = new Date(str);
+                if (!isNaN(dateObj.getTime())) {
+                    let dia = String(dateObj.getDate()).padStart(2, '0');
+                    let mes = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    let anio = dateObj.getFullYear();
+                    let hora = String(dateObj.getHours()).padStart(2, '0');
+                    let min = String(dateObj.getMinutes()).padStart(2, '0');
+                    let seg = String(dateObj.getSeconds()).padStart(2, '0');
+                    return `${dia}/${mes}/${anio} ${hora}:${min}:${seg}`;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            return str;
+        }
+
+        function renderizarTabla() {
+            const tbody = document.getElementById('tablaRegistros');
+            const sinRegistros = document.getElementById('sinRegistros');
+            tbody.innerHTML = '';
+
+            if (registrosGlobales.length === 0) {
+                sinRegistros.classList.remove('hidden');
+                return;
+            } else {
+                sinRegistros.classList.add('hidden');
+            }
+
+            registrosGlobales.forEach((reg) => {
+                const fechaRegLimia = formatearFechaRegistro(reg.fechaRegistro);
+                const gradoTxt = reg.grado || "";
+                const espTxt = reg.especialidad || "";
+                const dniTxt = reg.dni ? `DNI: ${reg.dni}` : "";
+                const nombreCompleto = `${gradoTxt} ${espTxt} ${reg.nombre}`.trim();
+                const fInicio = limpiarFechaYMD(reg.fechaInicio);
+                const fTermino = limpiarFechaYMD(reg.fechaTermino);
+
+                if (reg.nombre && !listaPersonalGuardada.includes(reg.nombre)) {
+                    listaPersonalGuardada.push(reg.nombre);
+                    localStorage.setItem('nombres_personal_sistema', JSON.stringify(listaPersonalGuardada));
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-4 whitespace-nowrap text-xs text-slate-400 font-medium">${fechaRegLimia}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-white">
+                        <span class="font-semibold">${nombreCompleto}</span><br>
+                        <span class="text-xs text-gold-custom">${dniTxt}</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-300">${reg.dias} días<br><span class="text-xs text-gold-custom">${reg.ciudad}</span></td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-300">${fInicio} al <br>${fTermino}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button onclick="generarWord(${reg.id})" class="btn-gold-custom text-slate-950 px-3 py-1.5 rounded font-bold text-xs uppercase tracking-wider transition-colors shadow">Imprimir Word</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            actualizarSelectPersonal();
+        }
+
+        function renderizarTablaAcumulados() {
+            const tbody = document.getElementById('tablaAcumulados');
+            tbody.innerHTML = '';
+
+            listaPersonalGuardada.forEach((nombre, index) => {
+                const actual = acumuladosVacaciones[nombre] || { dh: 0, sab: 0, dom: 0 };
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-sm text-white font-medium">${nombre}</td>
+                    <td class="px-4 py-3 text-center">
+                        <input type="number" min="0" max="22" id="dh_${index}" value="${actual.dh}" class="w-20 text-center rounded bg-slate-900 border border-slate-700 p-1 text-white text-sm focus:border-gold-custom">
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <input type="number" min="0" max="4" id="sab_${index}" value="${actual.sab}" class="w-20 text-center rounded bg-slate-900 border border-slate-700 p-1 text-white text-sm focus:border-gold-custom">
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <input type="number" min="0" max="4" id="dom_${index}" value="${actual.dom}" class="w-20 text-center rounded bg-slate-900 border border-slate-700 p-1 text-white text-sm focus:border-gold-custom">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function guardarAcumulados() {
+            listaPersonalGuardada.forEach((nombre, index) => {
+                const dhVal = parseInt(document.getElementById(`dh_${index}`).value) || 0;
+                const sabVal = parseInt(document.getElementById(`sab_${index}`).value) || 0;
+                const domVal = parseInt(document.getElementById(`dom_${index}`).value) || 0;
+                acumuladosVacaciones[nombre] = { dh: dhVal, sab: sabVal, dom: domVal };
+            });
+
+            localStorage.setItem('acumulados_vacaciones_sistema', JSON.stringify(acumuladosVacaciones));
+            alert('¡Control de vacaciones actualizado con éxito!');
+        }
+
+        function formatearFechaLargaTexto(fechaStr) {
+            const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+            const cleanDate = limpiarFechaYMD(fechaStr);
+            const date = new Date(cleanDate + 'T00:00:00'); 
+            const diaNum = date.getDate();
+            const mes = meses[date.getMonth()];
+            const anio = date.getFullYear();
+            return `${diaNum} de ${mes} del ${anio}.`;
+        }
+
+        // Función corregida: Maneja singular/plural y el formato exacto de texto + número
+function convertirDiasTextoNatural(num) {
+    const unidadesTexto = ["", "un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve", "treinta"];
+    
+    let n = parseInt(num);
+    let txt = unidadesTexto[n] || n;
+    let strNum = String(n).padStart(2, '0');
+    
+    // Define si es día (singular) o días (plural)
+    let unidad = (n === 1) ? "día" : "días";
+    
+    return `${txt} (${strNum}) ${unidad}`;
+}
+
+        function calcularDesglosePermisoPersonalizado(fechaInicioStr, fechaTerminoStr) {
+            let dh = 0;
+            let sab = 0;
+            let dom = 0;
+            let curr = new Date(limpiarFechaYMD(fechaInicioStr) + 'T00:00:00');
+            let end = new Date(limpiarFechaYMD(fechaTerminoStr) + 'T00:00:00');
+
+            while (curr <= end) {
+                let dayOfWeek = curr.getDay();
+                if (dayOfWeek === 0) {
+                    dom++;
+                } else if (dayOfWeek === 6) {
+                    sab++;
+                } else {
+                    dh++;
+                }
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            return { dh, sab, dom, total: dh + sab + dom };
+        }
+
+        async function generarWord(id) {
+            const fileInput = document.getElementById('inputPlantilla');
+            if (fileInput.files.length === 0) {
+                alert('Por favor, seleccione primero el archivo de plantilla Word (.docx) en la parte superior.');
+                return;
+            }
+
+            const registro = registrosGlobales.find(r => r.id == id);
+            const archivo = fileInput.files[0];
+            const hoyStr = new Date().toISOString().split('T')[0];
+
+            const haceUso = calcularDesglosePermisoPersonalizado(registro.fechaInicio, registro.fechaTermino);
+            const historico = acumuladosVacaciones[registro.nombre] || { dh: 0, sab: 0, dom: 0 };
+            
+            const corrDh = 22;
+            const corrSab = 4;
+            const corrDom = 4;
+            
+            const hizoUsoDh = historico.dh;
+            const hizoUsoSab = historico.sab;
+            const hizoUsoDom = historico.dom;
+            const hizoUsoTotal = hizoUsoDh + hizoUsoSab + hizoUsoDom;
+
+            const haceUsoDh = haceUso.dh;
+            const haceUsoSab = haceUso.sab;
+            const haceUsoDom = haceUso.dom;
+            const haceUsoTotal = haceUso.total;
+
+            const quedanDh = corrDh - (hizoUsoDh + haceUsoDh);
+            const quedanSab = corrSab - (hizoUsoSab + haceUsoSab);
+            const quedanDom = corrDom - (hizoUsoDom + haceUsoDom);
+            const quedanTotal = 30 - (hizoUsoTotal + haceUsoTotal);
+
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(archivo);
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const zip = new PizZip(content);
+                    const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+
+                    doc.render({
+                        grado: registro.grado || '',
+                        especialidad: registro.especialidad || '',
+                        dni: registro.dni || '',
+                        nombre: registro.nombre || '',
+                        dias: convertirDiasTextoNatural(registro.dias),
+                        ciudad: registro.ciudad,
+                        fechaInicio: formatearFechaLargaTexto(registro.fechaInicio),
+                        fechaTermino: formatearFechaLargaTexto(registro.fechaTermino),
+                        direccion: registro.direccion,
+                        telefono: registro.telefono,
+                        fechaActual: formatearFechaLargaTexto(hoyStr),
+                        
+                        // Valores numéricos limpios para el cuadro de vacaciones:
+                        hizoUsoDh: String(hizoUsoDh),
+                        hizoUsoSab: String(hizoUsoSab),
+                        hizoUsoDom: String(hizoUsoDom),
+                        hizoUsoTotal: String(hizoUsoTotal),
+                        
+                        haceUsoDh: String(haceUsoDh),
+                        haceUsoSab: String(haceUsoSab),
+                        haceUsoDom: String(haceUsoDom),
+                        haceUsoTotal: String(haceUsoTotal),
+                        
+                        quedanDh: String(quedanDh),
+                        quedanSab: String(quedanSab),
+                        quedanDom: String(quedanDom),
+                        quedanTotal: String(quedanTotal)
+                    });
+
+                    const out = doc.getZip().generate({
+                        type: "blob",
+                        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    });
+
+                    saveAs(out, `Papeleta_${registro.nombre.replace(/\s+/g, '_')}.docx`);
+                } catch (error) {
+                    console.error(error);
+                    alert('Error al procesar la plantilla. Revisa la consola (F12) para más detalles.');
+                }
+            };
+        }
+    </script>
+</body>
+</html>
